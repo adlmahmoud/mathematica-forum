@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematica Forum</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #000000;
+            --header-text: #ffffff;
+            --input-border: #cccccc;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+            --btn-hover: #333333;
+            --post-border: #eeeeee;
+            --sidebar-bg: #fafafa;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --header-bg: #000000;
+            --header-text: #ffffff;
+            --input-border: #444444;
+            --btn-bg: #ffffff;
+            --btn-text: #000000;
+            --btn-hover: #e0e0e0;
+            --post-border: #222222;
+            --sidebar-bg: #1a1a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER RESTRUCTURÉ (3 Colonnes) */
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 1rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--header-text);
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        nav a {
+            color: var(--header-text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav a.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Barre de recherche centrée */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            width: 350px;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            padding: 0.2rem;
+            font-size: 0.95rem;
+            color: #000;
+            width: 100%;
+        }
+
+        .search-bar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #000;
+            font-size: 1.1rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: 1px solid var(--header-text);
+            color: var(--header-text);
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--header-text);
+            color: var(--header-bg);
+        }
+
+        .user-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--header-text);
+            border-left: 1px solid #444;
+            padding-left: 1rem;
+        }
+
+        /* LAYOUT PRINCIPAL (Sidebar à gauche) */
+        .container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 250px 1fr; /* Sidebar d'abord, puis contenu */
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 2.5rem;
+            padding: 2rem;
+        }
+
+        /* BARRE LATÉRALE GAUCHE (NIVEAUX) */
+        aside {
+            border-right: 1px solid var(--post-border);
+            padding-right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 0.4rem;
+        }
+
+        .level-filter-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .level-item {
+            padding: 0.6rem;
+            border: 1px solid var(--post-border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background-color: var(--sidebar-bg);
+        }
+
+        .level-item:hover, .level-item.active {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border-color: var(--text-color);
+        }
+
+        /* VUES INTERNES */
+        .page-view {
+            display: none;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .page-view.active {
+            display: flex;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        /* FORMULAIRE DE PUBLICATION */
+        .publish-box {
+            border: 1px solid var(--text-color);
+            padding: 1.5rem;
+            border-radius: 6px;
+            background-color: transparent;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid var(--input-border);
+            background-color: transparent; color: var(--text-color);
+            border-radius: 4px; outline: none; font-size: 0.95rem;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .submit-btn {
+            padding: 10px 20px; background-color: var(--btn-bg); color: var(--btn-text);
+            border: none; cursor: pointer; font-weight: 600; border-radius: 4px;
+        }
+        .submit-btn:hover { background-color: var(--btn-hover); }
+
+        /* FIL DE POSTS */
+        .post-list { display: flex; flex-direction: column; gap: 1rem; }
+        .post-item {
+            border: 1px solid var(--post-border); padding: 1.2rem;
+            border-radius: 6px; display: flex; gap: 1.5rem;
+            background-color: var(--bg-color);
+        }
+        
+        .post-stats {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-width: 50px; color: #888; font-size: 0.85rem;
+        }
+        .post-score { font-size: 1.3rem; font-weight: bold; color: var(--text-color); }
+        .post-content { flex: 1; }
+        .post-content h2 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+        .post-content h2 a { color: var(--text-color); text-decoration: none; cursor: pointer; }
+        .post-content h2 a:hover { text-decoration: underline; }
+        .post-excerpt { font-size: 0.95rem; color: #555; margin-bottom: 0.8rem; line-height: 1.4; }
+        [data-theme="dark"] .post-excerpt { color: #ccc; }
+        .post-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+        .post-tags span { background-color: var(--btn-bg); color: var(--btn-text); padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.4rem; }
+        .post-level { border: 1px solid var(--text-color); padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.4rem; }
+        .post-author { color: #888; }
+
+        /* VUE DÉTAIL D'UNE PUBLICATION */
+        .back-btn {
+            background: none; border: 1px solid var(--text-color); color: var(--text-color);
+            padding: 0.4rem 1rem; cursor: pointer; border-radius: 4px; font-weight: bold;
+            width: fit-content; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .back-btn:hover { background-color: var(--text-color); color: var(--bg-color); }
+
+        .full-post {
+            border: 1px solid var(--text-color);
+            padding: 2rem; border-radius: 6px; margin-bottom: 2rem;
+        }
+        .full-post-body {
+            margin: 1.5rem 0; font-size: 1.05rem; line-height: 1.6; padding-bottom: 1.5rem; border-bottom: 1px solid var(--post-border);
+        }
+
+        .comments-section h3 { margin-bottom: 1.5rem; }
+        .comment-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+        .comment-item {
+            padding: 1rem; border: 1px solid var(--post-border); border-radius: 6px;
+            background-color: var(--sidebar-bg);
+        }
+        .comment-meta { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; font-weight: bold; }
+        
+        /* PAGE À PROPOS */
+        .about-card { border: 1px solid var(--post-border); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; }
+        .about-card h3 { margin-bottom: 0.5rem; border-bottom: 1px solid var(--post-border); padding-bottom: 0.3rem; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER: 3 Colonnes -->
+    <header>
+        <div class="header-left">
+            <div class="logo" onclick="switchView('forum-view')">Mathematica Forum</div>
+            <nav>
+                <a id="nav-home" class="active" onclick="switchView('forum-view')">Accueil</a>
+                <a id="nav-about" onclick="switchView('about-view')">À propos</a>
+            </nav>
+        </div>
+
+        <div class="header-center">
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher une question, un tag..." aria-label="Rechercher">
+                <button type="button">🔍</button>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="icon-btn" id="themeToggle">Mode Sombre</button>
+            <div class="user-profile-chip">
+                <span>👤</span>
+                <strong>Mahmoud Adel</strong>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- BARRE LATÉRALE GAUCHE : CHOIX DU NIVEAU D'ÉTUDE -->
+        <aside id="sidebarFilter">
+            <div class="sidebar-title">Niveau d'étude</div>
+            <ul class="level-filter-list">
+                <li class="level-item active" onclick="filterByLevel('Tous', this)">Tous les niveaux</li>
+                <li class="level-item" onclick="filterByLevel('Collège', this)">Collège</li>
+                <li class="level-item" onclick="filterByLevel('Lycée', this)">Lycée</li>
+                <li class="level-item" onclick="filterByLevel('Licence', this)">Licence</li>
+                <li class="level-item" onclick="filterByLevel('Master / Doctorat', this)">Master / Doctorat</li>
+            </ul>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <div class="content-wrapper">
+            
+            <!-- VUE 1 : FORUM PUBLIC -->
+            <div id="forum-view" class="page-view active">
+                <div class="publish-box">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">Poser une question ou publier un exercice</h3>
+                    <form id="publishForm">
+                        <div class="form-group">
+                            <input type="text" id="postTitle" placeholder="Titre clair de votre problème mathématique..." required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="postExcerpt" placeholder="Détaillez votre énoncé, vos pistes de recherche..." required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <select id="postCategory" required>
+                                    <option value="" disabled selected>Choisir une catégorie</option>
+                                    <option value="Algèbre">Algèbre</option>
+                                    <option value="Analyse">Analyse</option>
+                                    <option value="Géométrie">Géométrie</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <select id="postLevelSelect" required>
+                                    <option value="" disabled selected>Niveau d'étude</option>
+                                    <option value="Collège">Collège</option>
+                                    <option value="Lycée">Lycée</option>
+                                    <option value="Licence">Licence</option>
+                                    <option value="Master / Doctorat">Master / Doctorat</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">Publier le message</button>
+                    </form>
+                </div>
+
+                <h2 class="section-title">Posts les plus pertinents</h2>
+                
+                <div class="post-list" id="postListContainer">
+                    <article class="post-item" data-level="Licence">
+                        <div class="post-stats">
+                            <span class="post-score">42</span>
+                            <span>Score</span>
+                        </div>
+                        <div class="post-content">
+                            <!-- Ajout de l'événement onclick pour ouvrir le détail -->
+                            <h2><a onclick="openPost('Démonstration par récurrence : Somme des n premiers entiers', 'Je cherche à comprendre l\'étape d\'hérédité pour prouver que 1 + 2 + ... + n = n(n+1)/2. Quelqu\'un peut-il m\'expliquer comment manipuler l\'hypothèse de récurrence ? J\'ai déjà posé P(n) vraie, mais je bloque au passage de n à n+1.', 'Licence', 'Algèbre', 'Ethan_B', '42')">Démonstration par récurrence : Somme des n premiers entiers</a></h2>
+                            <p class="post-excerpt">Je cherche à comprendre l'étape d'hérédité pour prouver que 1 + 2 + ... + n = n(n+1)/2...</p>
+                            <div class="post-meta">
+                                <div><span class="post-level">Licence</span><span class="post-tags"><span>Algèbre</span></span></div>
+                                <div class="post-author">posté par <strong>Ethan_B</strong> il y a 2 heures</div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- VUE 2 : DÉTAIL D'UNE PUBLICATION -->
+            <div id="post-detail-view" class="page-view">
+                <button class="back-btn" onclick="switchView('forum-view')">← Retour aux discussions</button>
+                
+                <div class="full-post">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h1 id="detail-title" style="font-size: 1.8rem;">Titre de la publication</h1>
+                        <div class="post-stats" style="border: 1px solid var(--text-color); padding: 0.5rem; border-radius: 4px;">
+                            <span id="detail-score" class="post-score">0</span>
+                            <span>Score</span>
+                        </div>
+                    </div>
+                    
+                    <div class="post-meta" style="margin-top: 1rem;">
+                        <div>
+                            <span id="detail-level" class="post-level">Niveau</span>
+                            <span class="post-tags"><span id="detail-category">Catégorie</span></span>
+                        </div>
+                        <div class="post-author" id="detail-author">posté par <strong>Auteur</strong></div>
+                    </div>
+
+                    <div class="full-post-body" id="detail-body">
+                        Contenu complet de la question...
+                    </div>
+
+                    <div class="post-actions" style="display: flex; gap: 1rem;">
+                        <button class="icon-btn">👍 J'aime</button>
+                        <button class="icon-btn">👎 Je n'aime pas</button>
+                    </div>
+                </div>
+
+                <div class="comments-section">
+                    <h3>Réponses (1)</h3>
+                    <div class="comment-list">
+                        <div class="comment-item">
+                            <div class="comment-meta">Réponse de ProfMaths • il y a 30 minutes</div>
+                            <div class="comment-content">
+                                Pour l'hérédité, tu supposes que la propriété est vraie au rang n. Tu dois calculer la somme jusqu'à n+1, soit (1 + 2 + ... + n) + (n+1). Remplace la première parenthèse par ton hypothèse de récurrence n(n+1)/2, ajoute (n+1), mets au même dénominateur et factorise !
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulaire pour ajouter un commentaire -->
+                    <form style="margin-top: 1rem;">
+                        <textarea placeholder="Rédigez votre réponse ici..." style="width: 100%; padding: 10px; border: 1px solid var(--input-border); background-color: transparent; color: var(--text-color); border-radius: 4px; min-height: 80px; margin-bottom: 1rem;" required></textarea>
+                        <button type="submit" class="submit-btn">Publier la réponse</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VUE 3 : À PROPOS -->
+            <div id="about-view" class="page-view">
+                <h2 class="section-title">Présentation du Projet</h2>
+                <div class="about-card">
+                    <h3>Thématique Principale</h3>
+                    <p><strong>Mathematica Forum</strong> est une plateforme dédiée à l'entraide en mathématiques, inspirée de StackOverflow.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Gestion du Thème (Clair / Sombre)
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? '' : 'dark');
+            themeToggleBtn.textContent = isDark ? 'Mode Sombre' : 'Mode Clair';
+        });
+
+        // Navigation entre les vues
+        function switchView(viewId) {
+            document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            const navHome = document.getElementById('nav-home');
+            const navAbout = document.getElementById('nav-about');
+            const sidebar = document.getElementById('sidebarFilter');
+
+            if (viewId === 'forum-view') {
+                navHome.classList.add('active');
+                navAbout.classList.remove('active');
+                sidebar.style.display = 'flex'; 
+            } else if (viewId === 'about-view') {
+                navHome.classList.remove('active');
+                navAbout.classList.add('active');
+                sidebar.style.display = 'none'; 
+            } else if (viewId === 'post-detail-view') {
+                navHome.classList.remove('active');
+                navAbout.classList.remove('active');
+                sidebar.style.display = 'flex'; // Garder la sidebar visible en lisant un post
+            }
+        }
+
+        // Ouvrir une publication
+        function openPost(title, body, level, category, author, score) {
+            document.getElementById('detail-title').textContent = title;
+            document.getElementById('detail-body').textContent = body;
+            document.getElementById('detail-level').textContent = level;
+            document.getElementById('detail-category').textContent = category;
+            document.getElementById('detail-author').innerHTML = `posté par <strong>${author}</strong>`;
+            document.getElementById('detail-score').textContent = score;
+            
+            switchView('post-detail-view');
+        }
+
+        // Filtrage dynamique
+        function filterByLevel(level, element) {
+            document.querySelectorAll('.level-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            const posts = document.querySelectorAll('.post-item');
+            posts.forEach(post => {
+                if (level === 'Tous' || post.getAttribute('data-level') === level) {
+                    post.style.display = 'flex';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // Publication
+        document.getElementById('publishForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('postTitle').value;
+            const excerpt = document.getElementById('postExcerpt').value;
+            const category = document.getElementById('postCategory').value;
+            const level = document.getElementById('postLevelSelect').value;
+
+            const newArticle = document.createElement('article');
+            newArticle.classList.add('post-item');
+            newArticle.setAttribute('data-level', level);
+            
+            // Formatage de la chaîne de caractères pour échapper les guillemets dans l'événement onclick
+            const safeExcerpt = excerpt.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            newArticle.innerHTML = `
+                <div class="post-stats">
+                    <span class="post-score">0</span>
+                    <span>Score</span>
+                </div>
+                <div class="post-content">
+                    <h2><a onclick="openPost('${safeTitle}', '${safeExcerpt}', '${level}', '${category}', 'Mahmoud Adel', '0')">${title}</a></h2>
+                    <p class="post-excerpt">${excerpt.substring(0, 150)}...</p>
+                    <div class="post-meta">
+                        <div><span class="post-level">${level}</span><span class="post-tags"><span>${category}</span></span></div>
+                        <div class="post-author">posté par <strong>Mahmoud Adel</strong> à l'instant</div>
+                    </div>
+                </div>
+            `;
+
+            const postListContainer = document.getElementById('postListContainer');
+            postListContainer.insertBefore(newArticle, postListContainer.firstChild);
+            document.getElementById('publishForm').reset();
+            filterByLevel('Tous', document.querySelector('.level-filter-list .level-item'));
+        });
+    </script>
+</body>
+</html>
