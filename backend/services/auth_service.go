@@ -2,57 +2,62 @@ package services
 
 import (
 	"crypto/sha512"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
-	"mathematica-forum/config"
-	"mathematica-forum/middleware"
 	"mathematica-forum/models"
-	"mathematica-forum/repositories"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthService struct {
-	userRepository *repositories.UtilisateurRepository
+	db *sql.DB
 }
 
-func InitAuthService(userRepository *repositories.UtilisateurRepository) *AuthService {
-	return &AuthService{userRepository: userRepository}
+func InitAuthService(db *sql.DB) *AuthService {
+	return &AuthService{db: db}
 }
 
-func (s *AuthService) Login(email, password string) (string, models.Utilisateur, error) {
-	if email == "" || password == "" {
-		return "", models.Utilisateur{}, fmt.Errorf("Email et mot de passe requis")
+func (s *AuthService) Login(identifiant, password string) (string, error) {
+	var user models.Utilisateur
+	query := "SELECT id_utilisateur, mot_de_passe_hash, sel, is_banni FROM utilisateur WHERE nom_utilisateur = ? OR email = ?;"
+
+	err := s.db.QueryRow(query, identifiant, identifiant).Scan(&user.ID, &user.PasswordHash, &user.Sel, &user.IsBanni)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("Identifiants incorrects")
+		}
+		return "", err
 	}
 
-	user, err := s.userRepository.ReadByEmail(email)
-	if err != nil {
-		return "", models.Utilisateur{}, fmt.Errorf("Utilisateur non trouvé")
+	if user.IsBanni {
+		return "", fmt.Errorf("Ce compte a été banni")
 	}
 
 	hash := sha512.New()
-	hash.Write([]byte(password))
+	hash.Write([]byte(password + user.Sel))
 	hashedPassword := hex.EncodeToString(hash.Sum(nil))
 
 	if hashedPassword != user.PasswordHash {
-		return "", models.Utilisateur{}, fmt.Errorf("Mot de passe incorrect")
+		return "", fmt.Errorf("Identifiants incorrects")
 	}
 
-	claims := &middleware.Claims{
-		ID:       user.ID,
-		Username: user.Username,
-		IsAdmin:  user.IsAdmin,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		secretKey = "secret_de_secours_a_changer"
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.GetRequiredEnv("JWT_SECRET")))
+	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
-		return "", models.Utilisateur{}, fmt.Errorf("Erreur génération token")
+		return "", err
 	}
 
-	return tokenString, user, nil
+	return tokenString, nil
 }

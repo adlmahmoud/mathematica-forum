@@ -16,35 +16,24 @@ func InitAuthController(authService *services.AuthService) *AuthControllers {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	Token string      `json:"token"`
-	User  interface{} `json:"user"`
+	Identifiant string `json:"identifiant"`
+	Password    string `json:"password"`
 }
 
 func (c *AuthControllers) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helper.WriteError(w, http.StatusBadRequest, "JSON invalide")
+		helper.WriteError(w, http.StatusBadRequest, "Requête invalide")
 		return
 	}
 
-	token, user, err := c.authService.Login(req.Email, req.Password)
+	token, err := c.authService.Login(req.Identifiant, req.Password)
 	if err != nil {
 		helper.WriteError(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	helper.WriteJSON(w, http.StatusOK, LoginResponse{
-		Token: token,
-		User: map[string]interface{}{
-			"id":       user.ID,
-			"username": user.Username,
-			"email":    user.Email,
-			"is_admin": user.IsAdmin,
-		},
+	helper.WriteJSON(w, http.StatusOK, map[string]string{
+		"token": token,
 	})
 }
