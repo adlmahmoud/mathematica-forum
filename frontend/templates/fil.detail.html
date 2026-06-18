@@ -3,44 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>{{.Fil.Titre}}</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/global.css">
+    <link rel="stylesheet" href="/static/fil.css">
 </head>
 <body>
-    <div class="container">
-        <header>
+    <header>
+        <div class="header-container">
+            <a href="/home" style="color: white; text-decoration: none; font-size: 1.5rem; font-weight: bold;">MathForum</a>
+        </div>
+    </header>
+    <main class="thread-detail-container">
+        <article class="thread-main">
+            <a href="/home" class="back-link">← Retour aux discussions</a>
             <h1>{{.Fil.Titre}}</h1>
-            <p>Posté par {{.Fil.Auteur}} | Statut : {{.Fil.Etat}}</p>
-            <a href="/home">Retour à l'accueil</a>
-        </header>
-        <main>
-            <h2>Réponses</h2>
-            <div class="messages-list">
-                {{range .Messages}}
-                <div class="message-card">
+            <div class="thread-meta-subtle">Par {{.Fil.Auteur}}</div>
+        </article>
+
+        <div class="messages-list">
+            {{range .Messages}}
+            <div class="message-card">
+                <div class="message-content">
                     <p>{{.Contenu}}</p>
-                    <small>Par {{.Auteur}} | Le {{.CreatedAt}} | Score : {{.Score}}</small>
+                </div>
+                <div class="message-footer">
+                    <span class="message-author">{{.Auteur}}</span>
                     <form action="/reaction" method="POST" class="reaction-form">
                         <input type="hidden" name="message_id" value="{{.ID}}">
-                        <button type="submit" name="type" value="like">Like</button>
-                        <button type="submit" name="type" value="dislike">Dislike</button>
+                        <button type="submit" name="type" value="like" class="btn-icon">▲ {{.Score}}</button>
                     </form>
                 </div>
-                {{else}}
-                <p>Aucune réponse pour le moment.</p>
-                {{end}}
             </div>
-            <div class="reply-form">
-                <h3>Ajouter une réponse</h3>
-                <form action="/message/create" method="POST">
-                    <input type="hidden" name="fil_id" value="{{.Fil.ID}}">
-                    <div class="form-group">
-                        <label for="contenu">Votre message</label>
-                        <textarea id="contenu" name="contenu" required></textarea>
-                    </div>
-                    <button type="submit">Envoyer</button>
-                </form>
-            </div>
-        </main>
-    </div>
+            {{end}}
+        </div>
+
+        <div class="reply-section">
+            <form action="/message/create" method="POST">
+                <input type="hidden" name="fil_id" value="{{.Fil.ID}}">
+                <textarea name="contenu" placeholder="Écrire une réponse claire et détaillée..." required></textarea>
+                <button type="submit">Publier la réponse</button>
+            </form>
+        </div>
+    </main>
+    <script src="/static/script.js"></script>
 </body>
 </html>

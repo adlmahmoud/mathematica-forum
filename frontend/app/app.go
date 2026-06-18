@@ -1,39 +1,30 @@
-// Package app assemble les composants de l'application et configure le routeur.
 package app
 
 import (
-	"exempleInjection/api"
-	"exempleInjection/config"
-	"exempleInjection/controllers"
-	"exempleInjection/routers"
-	"exempleInjection/services"
-	"exempleInjection/templates"
+	"log"
+	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
+	"mathematica-forum/config"
+	"mathematica-forum/routers"
 )
 
-type App struct {
-	Router *mux.Router
-}
+func Start() {
+	config.LoadConfig()
 
-// InitApp initialise l'application, charge les templates et configure le routeur.
-func InitApp() *App {
-	config.LoadEnv()
+	routers.SetupRoutes()
 
-	templatesManager := templates.NewTemplatesManager()
+	fs := http.FileServer(http.Dir("frontend/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	baseURL := config.GetRequiredEnv("BASE_URL")
-	productApi := api.InitProductApi(baseURL)
+	port := os.Getenv("FRONTEND_PORT")
+	if port == "" {
+		port = "8081"
+	}
 
-	productService := services.InitProductService(productApi)
-
-	productController := controllers.InitProductController(productService, templatesManager)
-
-	router := mux.NewRouter()
-	routers.RegisterAssetsRoutes(router)
-	routers.RegisterProductRoutes(router, productController)
-
-	return &App{
-		Router: router,
+	log.Println("Le serveur frontend est démarré sur http://localhost:" + port)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal("Erreur fatale du serveur : ", err)
 	}
 }

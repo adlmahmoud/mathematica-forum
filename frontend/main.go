@@ -2,8 +2,8 @@
 package main
 
 import (
-	"exempleInjection/app"
 	"log"
+	"mathematica-forum/app"
 	"net/http"
 )
 

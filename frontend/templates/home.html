@@ -2,34 +2,36 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Forum - Accueil</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>Forum Mathématiques</title>
+    <link rel="stylesheet" href="/static/global.css">
+    <link rel="stylesheet" href="/static/home.css">
 </head>
 <body>
     <header>
-        <h1>Forum Communautaire</h1>
-        <nav>
-            <a href="/fil/create">Créer un sujet</a>
-            <a href="/logout">Déconnexion</a>
-        </nav>
+        <div class="header-container">
+            <a href="/home" style="color: white; text-decoration: none; font-size: 1.5rem; font-weight: bold;">MathForum</a>
+            <nav>
+                <a href="/fil/create">Nouveau Sujet</a>
+                <a href="/logout">Déconnexion</a>
+            </nav>
+        </div>
     </header>
     <main>
-        <h2>Discussions récentes</h2>
         <div class="threads-list">
             {{range .}}
             <div class="thread-card">
-                <h3><a href="/fil/{{.ID}}">{{.Titre}}</a></h3>
-                <p>Posté par {{.Auteur}} | Statut : {{.Etat}} | Le {{.CreatedAt}}</p>
                 <div class="tags">
                     {{range .Tags}}
-                    <span class="tag-badge">{{.}}</span>
+                    <span class="tag-badge" data-type="{{.}}">{{.}}</span>
                     {{end}}
                 </div>
+                <h3><a href="/fil/{{.ID}}">{{.Titre}}</a></h3>
             </div>
             {{else}}
-            <p>Aucun fil de discussion trouvé.</p>
+            <p style="text-align: center; color: #7f8c8d; margin-top: 3rem;">Aucune publication pour le moment.</p>
             {{end}}
         </div>
     </main>
+    <script src="/static/script.js"></script>
 </body>
 </html>

@@ -1,0 +1,67 @@
+.threads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.thread-card {
+    background: var(--card-bg);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.thread-card:hover {
+    background: #fafbfc;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.thread-card h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.thread-card h3 a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.thread-card h3 a:hover {
+    color: var(--primary-color);
+}
+
+.tags {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tag-badge {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+/* Coloration automatique selon le mot-clé (insensible à la casse si on utilise une convention) */
+.tag-badge[data-type*="Théorème"], .tag-badge[data-type*="theoreme"] {
+    background-color: #e3f2fd; color: #1565c0;
+}
+.tag-badge[data-type*="Exercice"], .tag-badge[data-type*="exercice"] {
+    background-color: #e8f5e9; color: #2e7d32;
+}
+.tag-badge[data-type*="Question"], .tag-badge[data-type*="question"] {
+    background-color: #fff3e0; color: #ef6c00;
+}

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"forum-frontend/services"
-	"forum-frontend/templates"
+	"mathematica-forum/services"
+	"mathematica-forum/templates"
 	"net/http"
 )
 

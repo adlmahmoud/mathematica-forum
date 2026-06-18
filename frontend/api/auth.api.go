@@ -4,7 +4,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"forum-frontend/dto"
+	"mathematica-forum/dto"
 	"net/http"
 )
 

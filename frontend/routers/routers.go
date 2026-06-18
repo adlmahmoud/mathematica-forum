@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"forum-frontend/controllers"
-	"forum-frontend/middleware"
+	"mathematica-forum/controllers"
+	"mathematica-forum/middleware"
 	"net/http"
 )
 

@@ -2,9 +2,9 @@
 package controllers
 
 import (
-	"forum-frontend/dto"
-	"forum-frontend/services"
-	"forum-frontend/templates"
+	"mathematica-forum/dto"
+	"mathematica-forum/services"
+	"mathematica-forum/templates"
 	"net/http"
 )
 

@@ -4,8 +4,8 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"forum-frontend/api"
-	"forum-frontend/dto"
+	"mathematica-forum/api"
+	"mathematica-forum/dto"
 	"net/http"
 )
 

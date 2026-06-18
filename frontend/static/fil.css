@@ -1,0 +1,108 @@
+.thread-detail-container {
+    max-width: 800px; /* Plus étroit pour forcer des lignes courtes, idéal pour la lecture */
+    margin: 2rem auto;
+}
+
+.back-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+}
+
+.thread-main h1 {
+    font-size: 2.2rem;
+    color: var(--text-color);
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+
+.thread-meta-subtle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+.message-card {
+    padding: 0;
+}
+
+.message-content p {
+    font-size: 1.1rem; /* Police plus grande pour reposer les yeux */
+    line-height: 1.7;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.message-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.message-author {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.btn-icon {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: auto;
+}
+
+.btn-icon:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+.reply-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.reply-section textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-family: inherit;
+    margin-bottom: 1rem;
+    resize: vertical;
+}
+
+.reply-section textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.reply-section button {
+    width: auto;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+}
