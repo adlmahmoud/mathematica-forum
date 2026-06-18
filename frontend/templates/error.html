@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Erreur</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Oups, une erreur s'est produite</h1>
+        <div class="error-box">
+            <p>{{.Message}}</p>
+        </div>
+        <div class="actions">
+            <a href="javascript:history.back()">Retourner à la page précédente</a>
+            <br><br>
+            <a href="/home">Aller à l'accueil</a>
+        </div>
+    </div>
+</body>
+</html>

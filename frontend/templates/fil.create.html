@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un sujet</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Créer un nouveau fil de discussion</h1>
+        <form action="/fil/create" method="POST">
+            <div class="form-group">
+                <label for="titre">Titre du sujet</label>
+                <input type="text" id="titre" name="titre" required>
+            </div>
+            <button type="submit">Créer le sujet</button>
+        </form>
+        <p><a href="/home">Retour à l'accueil</a></p>
+    </div>
+</body>
+</html>

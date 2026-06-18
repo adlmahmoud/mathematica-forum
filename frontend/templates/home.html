@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum - Accueil</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Forum Communautaire</h1>
+        <nav>
+            <a href="/fil/create">Créer un sujet</a>
+            <a href="/logout">Déconnexion</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Discussions récentes</h2>
+        <div class="threads-list">
+            {{range .}}
+            <div class="thread-card">
+                <h3><a href="/fil/{{.ID}}">{{.Titre}}</a></h3>
+                <p>Posté par {{.Auteur}} | Statut : {{.Etat}} | Le {{.CreatedAt}}</p>
+                <div class="tags">
+                    {{range .Tags}}
+                    <span class="tag-badge">{{.}}</span>
+                    {{end}}
+                </div>
+            </div>
+            {{else}}
+            <p>Aucun fil de discussion trouvé.</p>
+            {{end}}
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Fil.Titre}}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{.Fil.Titre}}</h1>
+            <p>Posté par {{.Fil.Auteur}} | Statut : {{.Fil.Etat}}</p>
+            <a href="/home">Retour à l'accueil</a>
+        </header>
+        <main>
+            <h2>Réponses</h2>
+            <div class="messages-list">
+                {{range .Messages}}
+                <div class="message-card">
+                    <p>{{.Contenu}}</p>
+                    <small>Par {{.Auteur}} | Le {{.CreatedAt}} | Score : {{.Score}}</small>
+                    <form action="/reaction" method="POST" class="reaction-form">
+                        <input type="hidden" name="message_id" value="{{.ID}}">
+                        <button type="submit" name="type" value="like">Like</button>
+                        <button type="submit" name="type" value="dislike">Dislike</button>
+                    </form>
+                </div>
+                {{else}}
+                <p>Aucune réponse pour le moment.</p>
+                {{end}}
+            </div>
+            <div class="reply-form">
+                <h3>Ajouter une réponse</h3>
+                <form action="/message/create" method="POST">
+                    <input type="hidden" name="fil_id" value="{{.Fil.ID}}">
+                    <div class="form-group">
+                        <label for="contenu">Votre message</label>
+                        <textarea id="contenu" name="contenu" required></textarea>
+                    </div>
+                    <button type="submit">Envoyer</button>
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
