@@ -1,11 +1,11 @@
 package models
 
 type Tag struct {
-	ID  int    `db:"id"`
-	Nom string `db:"nom"`
+	ID  int    `db:"id_tag"`
+	Nom string `db:"nom_tag"`
 }
 
 type FilTag struct {
-	FilID int `db:"fil_id"`
-	TagID int `db:"tag_id"`
+	FilID int `db:"id_fil"`
+	TagID int `db:"id_tag"`
 }

@@ -85,3 +85,26 @@ func (s *UtilisateurService) DeleteById(idUser int) error {
 
 	return s.userRepository.DeleteUtilisateurById(idUser)
 }
+
+func (s *UtilisateurService) BanUser(userID int) error {
+	if userID <= 0 {
+		return fmt.Errorf("ID utilisateur invalide")
+	}
+
+	user, errRead := s.userRepository.ReadById(userID)
+	if errRead != nil {
+		return errRead
+	}
+
+	if user.ID == 0 {
+		return fmt.Errorf("Utilisateur non trouvé")
+	}
+
+	user.IsBanni = true
+	errUpdate := s.userRepository.UpdateUtilisateurById(user)
+	if errUpdate != nil {
+		return errUpdate
+	}
+
+	return nil
+}

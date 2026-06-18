@@ -28,6 +28,9 @@ func InitDB() *sql.DB {
 		log.Fatalf("Erreur ping base de donnees - Erreur : \n\t %s", pingErr.Error())
 	}
 
+	dbContext.SetMaxOpenConns(25)
+	dbContext.SetMaxIdleConns(5)
+
 	log.Printf("BDD - Connexion reussie")
 	return dbContext
 }

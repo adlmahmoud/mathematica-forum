@@ -18,7 +18,7 @@ func InitUtilisateurRepository(db *sql.DB) *UtilisateurRepository {
 }
 
 func (r *UtilisateurRepository) CreateUtilisateur(user models.Utilisateur) (int, error) {
-	query := "INSERT INTO `UTILISATEUR`(`nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription`) VALUES (?,?,?,?);"
+	query := "INSERT INTO `utilisateur`(`nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription`) VALUES (?,?,?,?);"
 
 	sqlResult, sqlErr := r.db.Exec(query,
 		user.Username,
@@ -41,7 +41,7 @@ func (r *UtilisateurRepository) CreateUtilisateur(user models.Utilisateur) (int,
 
 func (r *UtilisateurRepository) ReadAll() ([]models.Utilisateur, error) {
 	var listUsers []models.Utilisateur
-	sqlResult, sqlErr := r.db.Query("SELECT `id_utilisateur`, `nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription` FROM `UTILISATEUR`;")
+	sqlResult, sqlErr := r.db.Query("SELECT `id_utilisateur`, `nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription` FROM `utilisateur`;")
 	if sqlErr != nil {
 		return listUsers, fmt.Errorf("Erreur récupération utilisateurs - Erreur : \n\t %s", sqlErr.Error())
 	}
@@ -62,7 +62,7 @@ func (r *UtilisateurRepository) ReadAll() ([]models.Utilisateur, error) {
 
 func (r *UtilisateurRepository) ReadById(id int) (models.Utilisateur, error) {
 	var user models.Utilisateur
-	query := "SELECT `id_utilisateur`, `nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription` FROM `UTILISATEUR` WHERE `id_utilisateur` = ?;"
+	query := "SELECT `id_utilisateur`, `nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription` FROM `utilisateur` WHERE `id_utilisateur` = ?;"
 
 	sqlErr := r.db.QueryRow(query, id).
 		Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.DateInscription)
@@ -78,12 +78,14 @@ func (r *UtilisateurRepository) ReadById(id int) (models.Utilisateur, error) {
 }
 
 func (r *UtilisateurRepository) UpdateUtilisateurById(user models.Utilisateur) error {
-	query := "UPDATE `UTILISATEUR` SET `nom_utilisateur`=?, `email`=?, `mot_de_passe_hash`=? WHERE `id_utilisateur`=?;"
+	query := "UPDATE `utilisateur` SET `nom_utilisateur`=?, `email`=?, `mot_de_passe_hash`=?, `is_admin`=?, `is_banni`=? WHERE `id_utilisateur`=?;"
 
 	sqlResult, sqlErr := r.db.Exec(query,
 		user.Username,
 		user.Email,
 		user.PasswordHash,
+		user.IsAdmin,
+		user.IsBanni,
 		user.ID)
 
 	if sqlErr != nil {
@@ -98,7 +100,7 @@ func (r *UtilisateurRepository) UpdateUtilisateurById(user models.Utilisateur) e
 }
 
 func (r *UtilisateurRepository) DeleteUtilisateurById(id int) error {
-	sqlResult, sqlErr := r.db.Exec("DELETE FROM `UTILISATEUR` WHERE `id_utilisateur`=?;", id)
+	sqlResult, sqlErr := r.db.Exec("DELETE FROM `utilisateur` WHERE `id_utilisateur`=?;", id)
 	if sqlErr != nil {
 		return fmt.Errorf("Erreur suppression utilisateur - Erreur : \n\t %s", sqlErr.Error())
 	}
@@ -108,4 +110,21 @@ func (r *UtilisateurRepository) DeleteUtilisateurById(id int) error {
 	}
 
 	return nil
+}
+
+func (r *UtilisateurRepository) ReadByEmail(email string) (models.Utilisateur, error) {
+	var user models.Utilisateur
+	query := "SELECT `id_utilisateur`, `nom_utilisateur`, `email`, `mot_de_passe_hash`, `date_inscription`, `is_admin`, `is_banni` FROM `utilisateur` WHERE `email` = ?;"
+
+	sqlErr := r.db.QueryRow(query, email).
+		Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.DateInscription, &user.IsAdmin, &user.IsBanni)
+
+	if sqlErr != nil {
+		if sqlErr == sql.ErrNoRows {
+			return models.Utilisateur{}, fmt.Errorf("Utilisateur non trouvé")
+		}
+		return models.Utilisateur{}, fmt.Errorf("Erreur récupération utilisateur - Erreur : \n\t %s", sqlErr.Error())
+	}
+
+	return user, nil
 }

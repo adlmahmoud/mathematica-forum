@@ -121,3 +121,21 @@ func (c *UtilisateurControllers) DeleteById(w http.ResponseWriter, r *http.Reque
 		"message": "Utilisateur supprimé",
 	})
 }
+
+func (c *UtilisateurControllers) BanUser(w http.ResponseWriter, r *http.Request) {
+	idUser, errId := readUtilisateurId(r)
+	if errId != nil {
+		helper.WriteError(w, http.StatusBadRequest, "Identifiant utilisateur invalide")
+		return
+	}
+
+	err := c.service.BanUser(idUser)
+	if err != nil {
+		helper.WriteError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	helper.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Utilisateur banni",
+	})
+}

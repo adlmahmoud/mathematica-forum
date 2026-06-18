@@ -64,3 +64,20 @@ func (s *FilService) DeleteById(idFil int) error {
 
 	return s.filRepository.DeleteFilById(idFil)
 }
+
+func (s *FilService) GetAllWithPagination(page int, limit int) ([]models.Fil, error) {
+	if page <= 0 {
+		page = 1
+	}
+
+	if limit <= 0 || limit > 50 {
+		limit = 10
+	}
+
+	fils, errRead := s.filRepository.ReadAllPaginated(page, limit)
+	if errRead != nil {
+		return nil, errRead
+	}
+
+	return fils, nil
+}

@@ -46,10 +46,31 @@ func (c *FilControllers) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *FilControllers) ReadAll(w http.ResponseWriter, r *http.Request) {
-	filList, err := c.service.ReadAll()
+	page := 1
+	limit := 10
+
+	queryPage := r.URL.Query().Get("page")
+	if queryPage != "" {
+		if p, err := strconv.Atoi(queryPage); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	queryLimit := r.URL.Query().Get("limit")
+	if queryLimit != "" {
+		if l, err := strconv.Atoi(queryLimit); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	filList, err := c.service.GetAllWithPagination(page, limit)
 	if err != nil {
 		helper.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	if filList == nil {
+		filList = []models.Fil{}
 	}
 
 	helper.WriteJSON(w, http.StatusOK, filList)
