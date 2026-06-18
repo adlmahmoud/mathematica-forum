@@ -7,16 +7,24 @@ import (
 
 	"mathematica-forum/config"
 	"mathematica-forum/routers"
+	"mathematica-forum/templates"
 )
 
 func Start() {
-	config.LoadConfig()
+	// Charger la configuration
+	config.LoadEnv()
 
+	// Initialiser les templates (Nouveau !)
+	templates.InitTemplates()
+
+	// Configurer les routes
 	routers.SetupRoutes()
 
+	// Configurer les fichiers statiques (CSS/JS)
 	fs := http.FileServer(http.Dir("frontend/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
+	// Lancer le serveur
 	port := os.Getenv("FRONTEND_PORT")
 	if port == "" {
 		port = "8081"
