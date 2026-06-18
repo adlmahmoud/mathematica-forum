@@ -2,12 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"strings"
-
+	"mathematica-forum/helper"
 	"mathematica-forum/models"
 	"mathematica-forum/services"
+	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -17,139 +16,116 @@ type TagController struct {
 }
 
 func InitTagController(tagService *services.TagService) *TagController {
-	return &TagController{tagService}
+	return &TagController{tagService: tagService}
 }
 
-type CreateTagRequest struct {
-	Nom string `json:"nom"`
-}
-
-type TagResponseItem struct {
-	ID  int    `json:"id"`
-	Nom string `json:"nom"`
+func readTagId(r *http.Request) (int, error) {
+	return strconv.Atoi(mux.Vars(r)["tagID"])
 }
 
 func (c *TagController) CreateTag(w http.ResponseWriter, r *http.Request) {
-	var req CreateTagRequest
-	errDecode := json.NewDecoder(r.Body).Decode(&req)
-	if errDecode != nil {
-		http.Error(w, "JSON invalide", http.StatusBadRequest)
+	var tag models.Tag
+	if err := json.NewDecoder(r.Body).Decode(&tag); err != nil {
+		helper.WriteError(w, http.StatusBadRequest, "JSON invalide")
 		return
 	}
 
-	if strings.TrimSpace(req.Nom) == "" {
-		http.Error(w, "Nom du tag requis", http.StatusBadRequest)
+	id, err := c.tagService.CreateTag(tag)
+	if err != nil {
+		helper.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	tag := models.Tag{Nom: req.Nom}
-	id, errCreate := c.tagService.CreateTag(tag)
-	if errCreate != nil {
-		http.Error(w, errCreate.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]int{"id": id})
+	tag.ID = id
+	helper.WriteJSON(w, http.StatusCreated, tag)
 }
 
 func (c *TagController) GetAllTags(w http.ResponseWriter, r *http.Request) {
-	tags, errRead := c.tagService.GetAllTags()
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusInternalServerError)
+	tags, err := c.tagService.GetAllTags()
+	if err != nil {
+		helper.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tags)
+	helper.WriteJSON(w, http.StatusOK, tags)
 }
 
 func (c *TagController) GetTagById(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	tagID, errConvert := strconv.Atoi(vars["tagID"])
-	if errConvert != nil {
-		http.Error(w, "ID tag invalide", http.StatusBadRequest)
+	id, errId := readTagId(r)
+	if errId != nil {
+		helper.WriteError(w, http.StatusBadRequest, "ID tag invalide")
 		return
 	}
 
-	tag, errRead := c.tagService.GetTagById(tagID)
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusInternalServerError)
+	tag, err := c.tagService.GetTagById(id)
+	if err != nil {
+		helper.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	if tag.ID == 0 {
-		http.Error(w, "Tag non trouvé", http.StatusNotFound)
+		helper.WriteError(w, http.StatusNotFound, "Tag introuvable")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tag)
-}
-
-func (c *TagController) GetFilsByTag(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	tagID, errConvert := strconv.Atoi(vars["tagID"])
-	if errConvert != nil {
-		http.Error(w, "ID tag invalide", http.StatusBadRequest)
-		return
-	}
-
-	filIDs, errRead := c.tagService.GetFilsByTag(tagID)
-	if errRead != nil {
-		http.Error(w, errRead.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string][]int{"fil_ids": filIDs})
+	helper.WriteJSON(w, http.StatusOK, tag)
 }
 
 func (c *TagController) DeleteTag(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	tagID, errConvert := strconv.Atoi(vars["tagID"])
-	if errConvert != nil {
-		http.Error(w, "ID tag invalide", http.StatusBadRequest)
+	id, errId := readTagId(r)
+	if errId != nil {
+		helper.WriteError(w, http.StatusBadRequest, "ID tag invalide")
 		return
 	}
 
-	errDelete := c.tagService.DeleteTag(tagID)
-	if errDelete != nil {
-		http.Error(w, errDelete.Error(), http.StatusBadRequest)
+	err := c.tagService.DeleteTag(id)
+	if err != nil {
+		helper.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Tag supprimé"})
+	helper.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Tag supprimé",
+	})
+}
+
+func (c *TagController) GetFilsByTag(w http.ResponseWriter, r *http.Request) {
+	id, errId := readTagId(r)
+	if errId != nil {
+		helper.WriteError(w, http.StatusBadRequest, "ID tag invalide")
+		return
+	}
+
+	fils, err := c.tagService.GetFilsByTag(id)
+	if err != nil {
+		helper.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	helper.WriteJSON(w, http.StatusOK, fils)
 }
 
 func (c *TagController) AddTagToFil(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	filID, errConvert := strconv.Atoi(vars["filID"])
-	if errConvert != nil {
-		http.Error(w, "ID fil invalide", http.StatusBadRequest)
+	filID, errFil := strconv.Atoi(mux.Vars(r)["filID"])
+	if errFil != nil {
+		helper.WriteError(w, http.StatusBadRequest, "ID fil invalide")
 		return
 	}
 
-	var req map[string]int
-	errDecode := json.NewDecoder(r.Body).Decode(&req)
-	if errDecode != nil {
-		http.Error(w, "JSON invalide", http.StatusBadRequest)
+	var req struct {
+		TagID int `json:"tag_id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		helper.WriteError(w, http.StatusBadRequest, "JSON invalide")
 		return
 	}
 
-	tagID, ok := req["tag_id"]
-	if !ok {
-		http.Error(w, "tag_id manquant", http.StatusBadRequest)
-		return
-	}
-
-	errAdd := c.tagService.AddTagToFil(filID, tagID)
+	errAdd := c.tagService.AddTagToFil(filID, req.TagID)
 	if errAdd != nil {
-		http.Error(w, errAdd.Error(), http.StatusBadRequest)
+		helper.WriteError(w, http.StatusBadRequest, errAdd.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Tag ajouté"})
+	helper.WriteJSON(w, http.StatusCreated, map[string]string{
+		"message": "Tag ajouté au fil",
+	})
 }
